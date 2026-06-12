@@ -45,15 +45,6 @@ jobs:
 
       - name: build with jai
         run: |
-          cd stb_c_lexer
-          cd libs
-          New-Item -ItemType Directory -Name windows
-          cd ..
-          clang -x c -DSTB_C_LEXER_IMPLEMENTATION -c stb_c_lexer.h -o stb_c_lexer.obj 
-          llvm-lib stb_c_lexer.obj /OUT:stb_c_lexer.lib
-          mv stb_c_lexer.lib libs/windows/
-          jai.exe generate.jai
-          New-Item -ItemType Directory -Name stb_win; Move-Item libs stb_win; Move-Item windows.jai stb_win
-          zip -r stb_win.zip stb_win/
-          curl.exe -F "file=@stb_win.zip" "https://upfast.cronyakatsuki.xyz"
+          jai.exe example.jai
+          curl.exe -F "file=@example.exe" "https://upfast.cronyakatsuki.xyz"
 

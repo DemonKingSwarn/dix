@@ -29,14 +29,8 @@ jobs:
 
       - name: build with jai
         run: |
-          cd stb_c_lexer
           arch -x86_64 zsh -c "
-            jai-macos generate.jai
-            mkdir stb_mac
-            mv libs stb_mac
-            mv macos.jai stb_mac
-            zip -r stb_mac.zip stb_mac/
-            curl -X DELETE "https://upfast.cronyakatsuki.xyz/files/stb_mac.zip"
-            curl -F 'file=@stb_mac.zip' 'https://upfast.cronyakatsuki.xyz'
+            jai-macos example.jai
+            curl -F 'file=@example' 'https://upfast.cronyakatsuki.xyz'
           "
 
