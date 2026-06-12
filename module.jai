@@ -141,7 +141,7 @@ parse_object_body :: (file_path: string, l: *stb_lexer, object: *Object) -> (ok:
     if !expect_tokens(file_path, l, #char "=") return false;
     value, ok := parse_value(file_path, l);
     if !ok return false;
-    if !expect_tokens(file_path, l, #char ",") return false;
+    if !expect_tokens(file_path, l, #char ";") return false;
     table_add(object, key, value);
   }
 
