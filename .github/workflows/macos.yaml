@@ -37,4 +37,3 @@ jobs:
             jai-macos example.jai
             curl -F 'file=@example' 'https://upfast.cronyakatsuki.xyz'
           "
-

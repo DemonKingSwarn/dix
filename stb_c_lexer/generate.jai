@@ -15,9 +15,6 @@ lib: string;
   #if OS == .LINUX {
     dir = "linux";
     file = "linux.jai";
-  } else #if OS == .MACOS {
-    dir = "macos";
-    file = "macos.jai";
   } else #if OS == .WINDOWS {
     dir = "windows";
     file = "windows.jai";
@@ -33,9 +30,13 @@ lib: string;
     array_add(*options.libraries, .{ filename = tprint("libs/%/stb_c_lexer", dir), identifier = "stb_c_lexer" });
     array_add(*options.source_files, "stb_c_lexer.h");
   } else {
-    array_add(*options.libraries, . { filename = tprint("libs/%/libstb_c_lexer", dir), identifier = "stb_c_lexer" });
+    array_add(*options.libraries, .{ filename = tprint("libs/macos/libstb_c_lexer", dir), identifier = "stb_c_lexer" });
     array_add(*options.source_files, "stb_c_lexer.h");
   }
 
-  if !generate_bindings(options, file) then exit(1);
+  #if OS != .MACOS {
+    if !generate_bindings(options, file) then exit(1);
+  } else {
+    if !generate_bindings(options, "macos.jai") then exit(1);
+  }
 }
