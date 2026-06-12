@@ -43,15 +43,6 @@ jobs:
           $JaiBinPath = Join-Path (Get-Location) "jai\bin"
           echo $JaiBinPath | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-#      - name: generate raylib bindings
-#        run: |
-#          cp modules/Raylib/generate_windows.jai generate_windows.jai
-#          curl.exe -sLo raylib.zip "https://github.com/raysan5/raylib/releases/download/6.0/raylib-6.0_win64_msvc16.zip"
-#          unzip raylib.zip
-#          jai.exe generate_windows.jai
-#          #curl.exe -X DELETE "https://upfast.cronyakatsuki.xyz/files/windows.jai"
-#          curl.exe -F "file=@windows.jai" "https://upfast.cronyakatsuki.xyz"
-
       - name: build with jai
         run: |
           cd stb_c_lexer
