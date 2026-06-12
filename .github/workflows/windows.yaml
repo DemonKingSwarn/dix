@@ -1,0 +1,63 @@
+name: Dork Windows Build
+
+on:
+  push:
+    paths:
+      - ".github/workflows/windows.yaml"
+      - "version.txt"
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Set up Developer Command Prompt (important!)
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        # Or the newer fork if needed:
+        # uses: TheMrMilchmann/setup-msvc-dev@v4
+
+      - name: Install Scoop
+        shell: pwsh
+        run: |
+          Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+          irm get.scoop.sh | iex
+
+      - name: Add Scoop to PATH
+        shell: pwsh
+        run: |
+          echo "$env:USERPROFILE\scoop\shims" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Install tools with Scoop
+        shell: pwsh
+        run: |
+          scoop config SCOOP_NONINTERACTIVE true
+          scoop bucket add extras
+          scoop install zip unzip
+
+      - name: install software
+        run: |
+          curl.exe -sLo jai-beta.zip "https://www.dropbox.com/scl/fi/lll53073ht2ly7jyaoq42/jai-beta-2-029.zip?rlkey=zol2t8nq5gyn45cxs59dbypqk&dl=1"
+          unzip jai-beta.zip
+          $JaiBinPath = Join-Path (Get-Location) "jai\bin"
+          echo $JaiBinPath | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+#      - name: generate raylib bindings
+#        run: |
+#          cp modules/Raylib/generate_windows.jai generate_windows.jai
+#          curl.exe -sLo raylib.zip "https://github.com/raysan5/raylib/releases/download/6.0/raylib-6.0_win64_msvc16.zip"
+#          unzip raylib.zip
+#          jai.exe generate_windows.jai
+#          #curl.exe -X DELETE "https://upfast.cronyakatsuki.xyz/files/windows.jai"
+#          curl.exe -F "file=@windows.jai" "https://upfast.cronyakatsuki.xyz"
+
+      - name: build with jai
+        run: |
+          cd stb_c_lexer
+          jai.exe generate.jai
+          New-Item -ItemType Directory -Name stb_win; Move-Item libs stb_win; Move-Item windows.jai stb_win
+          zip -r stb_win.zip stb_win/
+          curl.exe -F "file=@stb_win.zip" "https://upfast.cronyakatsuki.xyz"
+
