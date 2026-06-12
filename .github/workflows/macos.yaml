@@ -19,7 +19,6 @@ jobs:
       - name: Setup apple stuff
         run: |
           softwareupdate --install-rosetta --agree-to-license
-          xcode-select --install
 
       - name: install software
         run: |
