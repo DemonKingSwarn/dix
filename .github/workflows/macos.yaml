@@ -31,19 +31,10 @@ jobs:
         run: |
           arch -x86_64 zsh -c "
             cd stb_c_lexer
-            clang -x c -DSTB_C_LEXER_IMPLEMENTATION -c stb_c_lexer.h -o stb_c_lexer.o
-            ar rcs libstb_c_lexer.a stb_c_lexer.o
-            clang -x c -DSTB_C_LEXER_IMPLEMENTATION -c stb_c_lexer.h -o stb_c_lexer.o
-            clang -dynamiclib stb_c_lexer.o -o libstb_c_lexer.dylib
-            mkdir libs/macos
-            mv libstb_c_lexer.dylib libs/macos
-            mv libstb_c_lexer.a libs/macos
-            zip -r stb_mac.zip libs/macos/
-            curl -X DELETE "https://upfast.cronyakatsuki.xyz/files/stb_mac.zip"
-            curl -F 'file=@stb_mac.zip' 'https://upfast.cronyakatsuki.xyz'
+            jai-macos generate.jai
+            curl -F 'file=@macos.jai' 'https://upfast.cronyakatsuki.xyz'
             cd ..
             jai-macos example.jai
-            curl -X DELETE "https://upfast.cronyakatsuki.xyz/files/example"
             curl -F 'file=@example' 'https://upfast.cronyakatsuki.xyz'
           "
 

@@ -29,8 +29,13 @@ lib: string;
   } 
 
   options: Generate_Bindings_Options;
-  array_add(*options.libraries, .{ filename = tprint("libs/%/stb_c_lexer", dir), identifier = "stb_c_lexer" });
-  array_add(*options.source_files, "stb_c_lexer.h");
+  #if OS != .MACOS {
+    array_add(*options.libraries, .{ filename = tprint("libs/%/stb_c_lexer", dir), identifier = "stb_c_lexer" });
+    array_add(*options.source_files, "stb_c_lexer.h");
+  } else {
+    array_add(*options.libraries, . { filename = tprint("libs/%/libstb_c_lexer", dir), identifier = "stb_c_lexer" });
+    array_add(*options.source_files, "stb_c_lexer.h");
+  }
 
   if !generate_bindings(options, file) then exit(1);
 }
