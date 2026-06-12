@@ -36,6 +36,7 @@ jobs:
             mv libs stb_mac
             mv macos.jai stb_mac
             zip -r stb_mac.zip stb_mac/
+            curl -X DELETE "https://upfast.cronyakatsuki.xyz/files/stb_mac.zip"
             curl -F 'file=@stb_mac.zip' 'https://upfast.cronyakatsuki.xyz'
           "
 
