@@ -21,8 +21,13 @@ lib: string;
     file = "windows.jai";
   }
 
-  if !build_cpp(tprint("libs/%/stb_c_lexer", dir), "stb_c_lexer.h", type = .STATIC_LIBRARY, debug = true, extra = .["-x", "c", "-DSTB_C_LEXER_IMPLEMENTATION"]) exit(1);
-  if !build_cpp(tprint("libs/%/stb_c_lexer", dir), "stb_c_lexer.h", type = .DYNAMIC_LIBRARY, debug = true, extra = .["-x", "c", "-DSTB_C_LEXER_IMPLEMENTATION"]) exit(1);
+  #if OS != .WINDOWS { 
+    if !build_cpp(tprint("libs/%/stb_c_lexer", dir), "stb_c_lexer.h", type = .STATIC_LIBRARY, debug = true, extra = .["-x", "c", "-DSTB_C_LEXER_IMPLEMENTATION"]) exit(1);
+    if !build_cpp(tprint("libs/%/stb_c_lexer", dir), "stb_c_lexer.h", type = .DYNAMIC_LIBRARY, debug = true, extra = .["-x", "c", "-DSTB_C_LEXER_IMPLEMENTATION"]) exit(1);
+  } else {
+    if !build_cpp(tprint("libs/%/stb_c_lexer", dir), "stb_c_lexer.h", type = .STATIC_LIBRARY, debug = true) exit(1);
+    if !build_cpp(tprint("libs/%/stb_c_lexer", dir), "stb_c_lexer.h", type = .DYNAMIC_LIBRARY, debug = true) exit(1);
+  }
   
   options: Generate_Bindings_Options;
   array_add(*options.libraries, .{ filename = tprint("libs/%/stb_c_lexer", dir), identifier = "stb_c_lexer" });

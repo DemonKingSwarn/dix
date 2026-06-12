@@ -4,7 +4,6 @@ on:
   push:
     paths:
       - ".github/workflows/windows.yaml"
-      - "version.txt"
 
 jobs:
   build:
