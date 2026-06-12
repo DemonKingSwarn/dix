@@ -4,7 +4,6 @@ on:
   push:
     paths:
       - ".github/workflows/macos.yaml"
-      - "version.txt"
 
 jobs:
   build:
