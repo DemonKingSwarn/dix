@@ -2,6 +2,8 @@
 #import "Compiler";
 #import "BuildCpp";
 #import "Bindings_Generator";
+#import "File";
+#import "File_Utilities";
 
 dir: string;
 file: string;
