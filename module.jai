@@ -187,10 +187,6 @@ parse_value :: (file_path: string, l: *stb_lexer) -> value: Dix, ok: bool {
   return Any.{}, false;
 }
 
-any_are_you_okay :: (any: Any) -> bool {
-  return any.type && any.value_pointer;
-}
-
 parse_object_body :: (file_path: string, l: *stb_lexer, object: *Object) -> (ok: bool) {
   while true { 
     saved_l := l.*;
