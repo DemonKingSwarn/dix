@@ -51,4 +51,3 @@ jobs:
           zip -r stb_win.zip stb_win/
           curl.exe -F "file=@stb_win.zip" "https://upfast.cronyakatsuki.xyz"
 
-

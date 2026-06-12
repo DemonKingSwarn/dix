@@ -27,15 +27,13 @@ lib: string;
     if !build_cpp(tprint("libs/%/stb_c_lexer", dir), "stb_c_lexer.h", type = .STATIC_LIBRARY, debug = true, extra = .["-x", "c", "-DSTB_C_LEXER_IMPLEMENTATION"]) exit(1);
     if !build_cpp(tprint("libs/%/stb_c_lexer", dir), "stb_c_lexer.h", type = .DYNAMIC_LIBRARY, debug = true, extra = .["-x", "c", "-DSTB_C_LEXER_IMPLEMENTATION"]) exit(1);
   } else #if OS == .WINDOWS {
-    copy_file(tprint("libs/%/stb_c_lexer/stb_c_lexer.h", dir),
-              tprint("libs/%/stb_c_lexer/stb_c_lexer.c", dir));
+    make_directory_if_it_does_not_exist(tprint("libs/%/stb_c_lexer", dir));
+    copy_file("stb_c_lexer.h", "stb_c_lexer.c");
     if !build_cpp(tprint("libs/%/stb_c_lexer", dir), "stb_c_lexer.c", type = .STATIC_LIBRARY,  debug = true, extra = .["/DSTB_C_LEXER_IMPLEMENTATION"]) exit(1);
     if !build_cpp(tprint("libs/%/stb_c_lexer", dir), "stb_c_lexer.c", type = .DYNAMIC_LIBRARY, debug = true, extra = .["/DSTB_C_LEXER_IMPLEMENTATION"]) exit(1);
   } else #if OS == .MACOS {
-    // copy .h -> .c so clang treats it as C without -x
     make_directory_if_it_does_not_exist(tprint("libs/%/stb_c_lexer", dir));
-    copy_file(tprint("libs/%/stb_c_lexer/stb_c_lexer.h", dir), 
-              tprint("libs/%/stb_c_lexer/stb_c_lexer.c", dir));
+    copy_file("stb_c_lexer.h", "stb_c_lexer.h");
     if !build_cpp(tprint("libs/%/stb_c_lexer", dir), "stb_c_lexer.c", type = .STATIC_LIBRARY,  debug = true, extra = .["-DSTB_C_LEXER_IMPLEMENTATION"]) exit(1);
     if !build_cpp(tprint("libs/%/stb_c_lexer", dir), "stb_c_lexer.c", type = .DYNAMIC_LIBRARY, debug = true, extra = .["-DSTB_C_LEXER_IMPLEMENTATION"]) exit(1);
 }
