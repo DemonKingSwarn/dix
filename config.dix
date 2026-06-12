@@ -2,7 +2,7 @@ config = {
   hero_data = {
     name = "Astrid";
     max_health = 10;
-    max_oxygen = 12;
+    max_oxygen = 12.0;
   };
 };
 

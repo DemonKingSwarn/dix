@@ -7,6 +7,7 @@ main :: () {
   if !ok exit(1);
 
   print("%\n", get_dix_value(dix, string, "config", "hero_data", "name").*);
+  print("%\n", get_dix_value(dix, float, "config", "hero_data", "max_oxygen").*);
 
 }
 
