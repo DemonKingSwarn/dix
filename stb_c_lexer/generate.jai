@@ -26,11 +26,6 @@ lib: string;
   #if OS == .LINUX { 
     if !build_cpp(tprint("libs/%/stb_c_lexer", dir), "stb_c_lexer.h", type = .STATIC_LIBRARY, debug = true, extra = .["-x", "c", "-DSTB_C_LEXER_IMPLEMENTATION"]) exit(1);
     if !build_cpp(tprint("libs/%/stb_c_lexer", dir), "stb_c_lexer.h", type = .DYNAMIC_LIBRARY, debug = true, extra = .["-x", "c", "-DSTB_C_LEXER_IMPLEMENTATION"]) exit(1);
-  } else #if OS == .WINDOWS {
-    make_directory_if_it_does_not_exist(tprint("libs/%/stb_c_lexer", dir));
-    copy_file("stb_c_lexer.h", "stb_c_lexer.c");
-    if !build_cpp(tprint("libs/%/stb_c_lexer", dir), "stb_c_lexer.c", type = .STATIC_LIBRARY,  debug = true, extra = .["/DSTB_C_LEXER_IMPLEMENTATION", "/FS"]) exit(1);
-    if !build_cpp(tprint("libs/%/stb_c_lexer", dir), "stb_c_lexer.c", type = .DYNAMIC_LIBRARY, debug = true, extra = .["/DSTB_C_LEXER_IMPLEMENTATION", "/FS"]) exit(1);
   } else #if OS == .MACOS {
     make_directory_if_it_does_not_exist(tprint("libs/%/stb_c_lexer", dir));
     copy_file("stb_c_lexer.h", "stb_c_lexer.h");
