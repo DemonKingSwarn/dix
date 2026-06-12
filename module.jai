@@ -1,24 +1,55 @@
-DIX :: Any;  
-
+Dix :: Any;  
 Object :: Table(string, Any);
 
-get_dix_value :: (dix: DIX, $T: Type, path: ..string) -> *T {
-  cursor := dix; 
+Expr_Kind :: enum {
+  VARIABLE;
+}
+
+Expr :: union kind: Expr_Kind {
+  .VARIABLE,, variable: struct { path: []string; };
+}
+
+Outcome :: enum {
+  FOUND;
+  UNKNOWN;
+  STACK_OVERFLOW;
+}
+
+MAX_STACK_SIZE :: 100;
+
+get_dix_value :: (root: Dix, path: ..string, level: int = 1) -> (value: Dix, outcome: Outcome) {
+  if level > MAX_STACK_SIZE return Any.{}, .STACK_OVERFLOW;
+  
+  cursor := root; 
   for key: path {
-    if cursor.type != cast(*Type_Info)Object return null;
+    if cursor.type != cast(*Type_Info)Object return Any.{}, .UNKNOWN;
     object := cast(*Object)cursor.value_pointer;
     ok, next_cursor := table_find(object, key);
-    if !ok return null;
+    if !ok return Any.{}, .UNKNOWN;
     cursor = next_cursor;
   }
 
+  if cursor.type != cast(*Type_Info)Expr return cursor, .FOUND;
+
+  expr : *Expr = cursor.value_pointer;
+  if #complete expr.kind == {
+    case .VARIABLE; 
+      value, outcome := get_dix_value(root, ..expr.variable.path, level + 1);
+      return value, outcome;
+  }
+  return cursor, .FOUND;
+}
+
+get_dix_value :: (root: Dix, $T: Type, path: ..string) -> *T {
+  cursor, outcome := get_dix_value(root, ..path);
+  if outcome != .FOUND return null;
   if cursor.type != cast(*Type_Info)T return null;
   return cursor.value_pointer;
 }
 
-load_dix_from_file :: (file_path: string) -> (dix: DIX, ok: bool) {
+load_dix_from_file :: (file_path: string) -> (dix: Dix, ok: bool) {
   content, ok := read_entire_file(file_path); 
-  if !ok return null, false;
+  if !ok return Any.{}, false;
   
   l: stb_lexer;
 
@@ -27,32 +58,47 @@ load_dix_from_file :: (file_path: string) -> (dix: DIX, ok: bool) {
   stb_c_lexer_init(*l, content.data, content.data + content.count, string_store.data, string_store.count);
 
   value := New(Object);
-  if !parse_object_body(file_path, *l, value) return null, false;
+  if !parse_object_body(file_path, *l, value) return Any.{}, false;
   return Any.{cast(*Type_Info)Object, value}, true;
 
 }
 
-dump_value :: (root: Any, level := 0) {
-  if root.type.type == {
-    case .FLOAT; #through;
-    case .INTEGER; #through;
-    case .STRING; print("\"%\"", root);
-    case .BOOL; print("%", root);
-    case .STRUCT;
-      if root.type == cast(*Type_Info)Object {
-        object : *Object = root.value_pointer; 
-        print("{\n");
-        for object {
-          for 1..level+1 print("  "); print("% => ", it_index); 
-          dump_value(it, level + 1);
-          print(",\n");
+dump_value :: (root: Dix) {
+  dump_value_impl :: (root: Dix, current: Dix, level: int) { 
+    if current.type.type == {
+      case .FLOAT; #through;
+      case .INTEGER; #through;
+      case .STRING; print("\"%\"", current);
+      case .BOOL; print("%", current);
+      case .STRUCT;
+        if current.type == cast(*Type_Info)Object {
+          object : *Object = current.value_pointer; 
+          print("{\n");
+          for object {
+            for 1..level+1 print("  "); print("% => ", it_index); 
+            dump_value_impl(root, it, level + 1);
+            print(",\n");
+          }
+          for 1..level print("  "); print("}");
+        } else if current.type == cast(*Type_Info)Expr {
+          expr : *Expr = current.value_pointer;
+          if #complete expr.kind == {
+            case .VARIABLE; 
+              value, outcome := get_dix_value(root, ..expr.variable.path);
+              if #complete outcome == {
+                case .FOUND; dump_value_impl(root, value, level + 1); 
+                case .UNKNOWN; print("[MISSING]");
+                case .STACK_OVERFLOW; print("[STACK OVERFLOW]");
+              }
+          }
+        } else {
+          assert(false, "unreachable");
         }
-        for 1..level print("  "); print("}");
-      } else {
-        assert(false, "unreachable");
-      }
-    case; assert(false, "unreachable");
+      case; assert(false, "unreachable");
+    }
   }
+
+  dump_value_impl(root, root, 0);
 }
 
 
@@ -76,12 +122,12 @@ report_error :: (file_path: string, l: *stb_lexer, format_string: string, args: 
   print("\n");
 }
 
-parse_value :: (file_path: string, l: *stb_lexer) -> value: Any, ok: bool {
+parse_value :: (file_path: string, l: *stb_lexer) -> value: Dix, ok: bool {
   stb_c_lexer_get_token(l);
   if l.token == {
     case #char "{";
       value := New(Object);
-      if !parse_object_body(file_path, l, value) return null, false;
+      if !parse_object_body(file_path, l, value) return Any.{}, false;
       // We expect parse_object_body to consume `}` for us
       return Any.{cast(*Type_Info)Object, value}, true;
 
@@ -107,8 +153,24 @@ parse_value :: (file_path: string, l: *stb_lexer) -> value: Any, ok: bool {
           value.* = false;
           return Any.{cast(*Type_Info)bool, value}, true;
         case;
-          report_error(file_path, l, "ERROR: Unexpected identifier %", id);
-          return null, false;
+          path: [..]string;
+          array_add(*path, id);
+          // config.hero_data.name
+          saved_l := l.*;
+          stb_c_lexer_get_token(l);
+          while l.token == #char "." {
+            if !expect_tokens(file_path, l, xx CLEX.id) return Any.{}, false;
+            array_add(*path, copy_string(to_string(l._string)));
+            saved_l = l.*;
+            stb_c_lexer_get_token(l);
+          }
+          l.* = saved_l;
+         
+          value := New(Expr);
+          value.kind = .VARIABLE;
+          value.variable.path = path; 
+          
+          return Any.{cast(*Type_Info)Expr, value}, true;
       }
 
     case xx CLEX.dqstring;
@@ -118,11 +180,15 @@ parse_value :: (file_path: string, l: *stb_lexer) -> value: Any, ok: bool {
 
     case;
       report_error(file_path, l, "ERROR: Unexpected token %\n", l.token);
-      return null, false;
+      return Any.{}, false;
    }
 
   assert(false, "unreachable");
-  return null, false;
+  return Any.{}, false;
+}
+
+any_are_you_okay :: (any: Any) -> bool {
+  return any.type && any.value_pointer;
 }
 
 parse_object_body :: (file_path: string, l: *stb_lexer, object: *Object) -> (ok: bool) {
