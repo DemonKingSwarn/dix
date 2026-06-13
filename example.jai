@@ -15,6 +15,7 @@ main :: () {
   //dump_value(dix);
 
   print("name: %\nhealth: %\noxygen: %\nis_diving: %\nanother_var: %\n", name, health, max_oxygen, is_diving, another_var);
+
 }
 
 

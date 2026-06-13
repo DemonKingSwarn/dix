@@ -1,5 +1,7 @@
 // ah yes, comments
 
+smv = 69;
+
 config = {
   hero_data = {
     name = "Astrid";
@@ -15,6 +17,6 @@ config = {
 
 another_field = {
   data = {
-    another_var = config.hero_data.max_health;
+    another_var = smv;
   };
 };

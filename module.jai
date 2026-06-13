@@ -207,7 +207,7 @@ parse_object_body :: (file_path: string, l: *stb_lexer, object: *Object) -> (ok:
     table_add(object, key, value);
   }
 
-  assert(false, "TODO");
+  assert(false, "unreachable");
   return false;
 }
 
