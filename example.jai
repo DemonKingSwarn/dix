@@ -8,7 +8,7 @@ main :: () {
 
   name := get_dix_value(dix, string, "config", "hero_data", "name").*;
   health := get_dix_value(dix, int, "config", "hero_data", "max_health").*;
-  another_var := get_dix_value(dix, int, "config", "another_field", "another_var").*;
+  another_var := get_dix_value(dix, int, "config", "another_var").*;
   max_oxygen := get_dix_value(dix, float, "config", "hero_data", "max_oxygen").*;
   is_diving := get_dix_value(dix, bool, "config", "hero_data", "is_diving").*;
 

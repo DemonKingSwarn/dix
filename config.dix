@@ -8,9 +8,13 @@ config = {
 
     is_diving = true;
   };
+  
+  another_var = another_field.data.another_var;
+  
+};
 
-  another_field = {
+another_field = {
+  data = {
     another_var = config.hero_data.max_health;
   };
 };
-
